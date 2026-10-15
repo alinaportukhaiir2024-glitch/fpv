@@ -21,7 +21,6 @@ class StoppingHandler(FlightStateHandler):
 
         elapsed = time.monotonic() - node.hover_started_at
 
-        # 1. Фаза утримання (30 секунд)
         if elapsed < 30.0:
             node.stop_horizontal_motion()
             node.get_logger().info(
@@ -30,15 +29,13 @@ class StoppingHandler(FlightStateHandler):
             )
             return
 
-        # 2. Перемикання в режим LAND
         if not self.mode_switched:
             self.mode_switched = True
             node.get_logger().info("30 секунд утримання вичерпано. Переключення в режим LAND...")
             req = ModeSwitch.Request()
-            req.mode = 9  # 9 = LAND mode for ArduCopter
+            req.mode = 9
             node.mode_client.call_async(req)
 
-        # 3. Примусове плавне зниження Vz = -0.5 м/с до землі
         if current_z > 0.25:
             node.get_logger().info(
                 f"Зниження та посадка... Поточна висота Z: {current_z:.2f} м", 
@@ -49,10 +46,9 @@ class StoppingHandler(FlightStateHandler):
             msg.header.frame_id = "base_link"
             msg.twist.linear.x = 0.0
             msg.twist.linear.y = 0.0
-            msg.twist.linear.z = -0.5  # Плавне зниження
+            msg.twist.linear.z = -0.5
             node.cmd_vel_publisher.publish(msg)
         else:
-            # Дрон торкнувся землі
             node.stop_horizontal_motion()
             node.get_logger().info("Дрон успішно торкнувся землі! Місію повністю завершено.")
             node.destroy_node()
