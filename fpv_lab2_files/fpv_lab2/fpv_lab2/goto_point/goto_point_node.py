@@ -37,12 +37,11 @@ class GotoPointNode(FlightTestNode):
             y0 = message.pose.pose.position.y
             self.start_position = (x0, y0)
 
-            # Перевірені координати коридорів
             self.waypoints = [
-                (x0 + 1.2, y0 + 0.0),  # WP1: поворот
-                (x0 + 1.2, y0 + 2.0),  # WP2: верхній коридор
-                (x0 + 4.5, y0 + 2.0),  # WP3: проліт уздовж коридору
-                (x0 + self.delta_x, y0 + self.delta_y)  # WP4: фініш (5.2, 0.2)
+                (x0 + 1.2, y0 + 0.0),
+                (x0 + 1.2, y0 + 2.0),
+                (x0 + 4.5, y0 + 2.0),
+                (x0 + self.delta_x, y0 + self.delta_y)
             ]
             self.get_logger().info(f"Старт зафіксовано: ({x0:.2f}, {y0:.2f}) | Waypoints: {self.waypoints}")
 
