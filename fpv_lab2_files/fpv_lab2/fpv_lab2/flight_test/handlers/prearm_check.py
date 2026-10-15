@@ -13,7 +13,6 @@ class PrearmCheckHandler(FlightStateHandler):
         self.last_attempt_time = 0.0
 
     def handle(self, node: "FlightTestNode") -> None:
-        # Чекаємо 2 секунди між повторними спробами, щоб не спамити сервіс
         current_time = time.monotonic()
         if node.request_in_progress or (current_time - self.last_attempt_time < 2.0):
             return
