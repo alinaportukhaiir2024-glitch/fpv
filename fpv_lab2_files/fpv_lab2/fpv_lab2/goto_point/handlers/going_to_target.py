@@ -22,7 +22,6 @@ class GoingToTargetHandler(FlightStateHandler):
         dy_global = target[1] - position[1]
         distance = math.hypot(dx_global, dy_global)
 
-        # Перевірка досягнення точки
         if distance <= node.tolerance:
             if self.stop_time is None:
                 self.stop_time = time.monotonic()
@@ -44,18 +43,15 @@ class GoingToTargetHandler(FlightStateHandler):
                 node.state = GotoState.STOPPING
                 return
 
-        # Глобальні швидкості
         speed = node.max_speed * min(1.0, distance / node.slowdown_radius)
         speed = max(speed, node.min_speed)
 
         vx_global = speed * (dx_global / distance)
         vy_global = speed * (dy_global / distance)
 
-        # Перетворення в Body Frame ArduPilot (X=Forward, Y=Right, Z=Down)
         q = node.odometry.pose.pose.orientation
         yaw = get_yaw_from_quaternion(q)
 
-        # Інвертуємо Y, оскільки у Body Frame ArduPilot +Y — це ВПРАВО
         vx_body =  vx_global * math.cos(yaw) + vy_global * math.sin(yaw)
         vy_body = -( -vx_global * math.sin(yaw) + vy_global * math.cos(yaw) )
 
