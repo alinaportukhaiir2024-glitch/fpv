@@ -42,7 +42,6 @@ class ArmingHandler(FlightStateHandler):
 
         node.get_logger().info("Motors armed successfully!")
         
-        # Відправляємо команду Takeoff одразу після армінгу
         target_alt = getattr(node, 'TAKEOFF_ALTITUDE', 2.5)
         takeoff_req = Takeoff.Request()
         takeoff_req.alt = float(target_alt)
