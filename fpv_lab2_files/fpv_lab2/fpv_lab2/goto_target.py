@@ -14,13 +14,11 @@ class DroneGotoTargetNode(Node):
     def __init__(self):
         super().__init__('drone_goto_target')
 
-        # Індивідуальні координати (Варіант: X=5.2, Y=0.2)
         self.target_x = 5.2
         self.target_y = 0.2
         self.target_z = 2.5
         self.tolerance = 0.25
 
-        # Поточні координати
         self.current_x = 0.0
         self.current_y = 0.0
         self.current_z = 0.0
@@ -34,15 +32,12 @@ class DroneGotoTargetNode(Node):
         )
         qos_system = QoSProfile(depth=10)
 
-        # Підписка на топіки одометрії
         self.create_subscription(Odometry, '/model/iris/odometry', self.odom_callback, qos_best_effort)
         self.create_subscription(Odometry, '/iris/odometry', self.odom_callback, qos_best_effort)
         self.create_subscription(Odometry, '/odometry', self.odom_callback, qos_best_effort)
 
-        # Видавець команд швидкості
         self.pub_vel = self.create_publisher(TwistStamped, '/ap/cmd_vel', 10)
 
-        # Сервіси ArduPilot
         self.cli_mode = self.create_client(ModeSwitch, '/ap/mode_switch')
         self.cli_arm = self.create_client(Trigger, '/ap/arm_motors')
         self.cli_takeoff = self.create_client(Takeoff, '/ap/takeoff')
@@ -88,14 +83,13 @@ class DroneGotoTargetNode(Node):
 
         if self.state == 'INIT':
             self.get_logger().info('>>> ЕТАП 1: Надсилання команд GUIDED, Arm та Takeoff...')
-            self.call_mode(4)  # GUIDED
+            self.call_mode(4)
             self.call_trigger(self.cli_arm)
             self.call_takeoff(self.target_z)
             self.state = 'TAKEOFF_CHECK'
             self.start_time = time.time()
 
         elif self.state == 'TAKEOFF_CHECK':
-            # Допоміжне постійне надсилання команд протягом 3 секунд для розблокування
             if time.time() - self.start_time < 3.0:
                 self.call_mode(4)
                 self.call_trigger(self.cli_arm)
@@ -153,7 +147,7 @@ class DroneGotoTargetNode(Node):
 
         elif self.state == 'LAND':
             self.get_logger().info('>>> ЕТАП 3: Автоматична посадка (LAND)')
-            self.call_mode(9)  # LAND
+            self.call_mode(9)
             if self.current_z < 0.3:
                 self.get_logger().info('>>> УСПІШНО ПРИЗЕМЛИВСЯ! Завершення роботи.')
                 self.timer.cancel()
